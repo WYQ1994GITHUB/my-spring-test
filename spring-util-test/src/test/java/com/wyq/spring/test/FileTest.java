@@ -18,10 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author 罗新
- * @date 2021-09-23 14:31
- **/
 public class FileTest {
     @Test
     public void testA() throws IOException {

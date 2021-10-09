@@ -6,9 +6,6 @@ import org.junit.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @date 2021-10-09 14:25
- **/
 public class MapTest {
     public static void main(String[] args) {
         Map<String, Integer> map = new HashMap<>();
