@@ -12,7 +12,8 @@
     <description>Demo project for Spring Boot</description>
 
     <modules>
-
+        <module>spring-util-test</module>
+        <module>spring-abstract-test</module>
     </modules>
 
     <properties>
@@ -27,6 +28,16 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.75</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.10</version>
         </dependency>
     </dependencies>
 
