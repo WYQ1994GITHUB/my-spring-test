@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FileTest {
+public class XlsxFileTest {
     @Test
     public void testA() throws IOException {
         String filePath = "/Users/yongqiwang/Downloads/分析机器人模型测试批量导入模版2.xlsx";
