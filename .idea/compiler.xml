@@ -7,12 +7,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="spring-util-test" />
+        <module name="spring-annotion-test" />
         <module name="spring-abstract-test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="my-spring-test" target="1.8" />
       <module name="spring-abstract-test" target="1.8" />
+      <module name="spring-annotion-test" target="1.8" />
       <module name="spring-util-test" target="1.8" />
     </bytecodeTargetLevel>
   </component>

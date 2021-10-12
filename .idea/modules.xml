@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/my-spring-test.iml" filepath="$PROJECT_DIR$/my-spring-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/spring-abstract-test/spring-abstract-test.iml" filepath="$PROJECT_DIR$/spring-abstract-test/spring-abstract-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spring-annotion-test/spring-annotion-test.iml" filepath="$PROJECT_DIR$/spring-annotion-test/spring-annotion-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/spring-util-test/spring-util-test.iml" filepath="$PROJECT_DIR$/spring-util-test/spring-util-test.iml" />
     </modules>
   </component>

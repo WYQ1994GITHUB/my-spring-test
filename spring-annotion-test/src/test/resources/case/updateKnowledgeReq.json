@@ -1,0 +1,41 @@
+{
+  "checkPermission": true,
+  "decisionReq": {
+    "action": 2,
+    "actionParam": "{}",
+    "assistRobotId": 0,
+    "attachmentSendFlag": 0,
+    "dataCollectFlag": 0,
+    "decisionId": 24581119,
+    "decisionItemList": [
+      {
+        "action": 3,
+        "actionParam": "{\"sceneNodeId\":1968135}",
+        "decisionItemId": 26929751,
+        "index": 1,
+        "knowledge": "",
+        "rawContent": "{\"entityMap\":{},\"blocks\":[{\"depth\":0,\"data\":{},\"inlineStyleRanges\":[],\"text\":\"\",\"type\":\"unstyled\",\"key\":\"8o2se\",\"entityRanges\":[]}]}"
+      }
+    ],
+    "keyword": "(以后|后期).*(记账|做账),(以后|后期|后续).*(记账|做账)",
+    "knowledgeBaseId": 11388533,
+    "labelInfoIds": "[]",
+    "name": "后期做账",
+    "nodeCategory": "知识库节点",
+    "onlineServiceSwitch": 0,
+    "smsTemplateId": -1,
+    "userMeanHighPriority": false
+  },
+  "env": "DEV",
+  "updateKnowledgeBaseReq": {
+    "knowledgeBaseId": 11388533,
+    "labelConcern": true,
+    "robotDefId": 227125,
+    "sceneNodeId": 1967042,
+    "similarityQuestion": [
+
+    ],
+    "standardQuestion": "后期做账",
+    "title": "后期做账"
+  }
+}
