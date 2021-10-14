@@ -9,14 +9,14 @@ public abstract class AbstractObjectDemo2 implements ApplicationContextAware {
 
     public abstract Integer init(int a);
 
-    public abstract String execute();
+    public abstract String execute(AbstractInterface2.Student student);
 
-    public static String execute2(Integer code) {
+    public static String execute2(Integer code, AbstractInterface2.Student student) {
         AbstractObjectDemo2 abstractObjectDemo2 = getAbstractObjectDemo2(code);
         if (null == abstractObjectDemo2) {
             return null;
         }
-        return abstractObjectDemo2.execute();
+        return abstractObjectDemo2.execute(student);
     }
 
     private static AbstractObjectDemo2 getAbstractObjectDemo2(Integer code) {

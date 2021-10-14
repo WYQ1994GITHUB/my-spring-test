@@ -8,12 +8,12 @@ import java.util.List;
 public class AbstractInterface2Impl implements AbstractInterface2 {
     @Override
     public String execute(String a, String b, List<Integer> codes) {
-        System.out.println(b);
-        System.out.println(a);
-        System.out.println(codes);
+        Student student = new Student();
+        student.setAge(0);
+        student.setName("zs");
 
         for (Integer code : codes) {
-            AbstractObjectDemo2.execute2(code);
+            AbstractObjectDemo2.execute2(code, student);
         }
         return null;
     }
