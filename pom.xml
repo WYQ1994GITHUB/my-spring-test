@@ -15,6 +15,7 @@
         <module>spring-util-test</module>
         <module>spring-abstract-test</module>
         <module>spring-annotion-test</module>
+        <module>spring-mvc-test</module>
     </modules>
 
     <properties>
