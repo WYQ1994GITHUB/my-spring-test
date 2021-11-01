@@ -16,6 +16,7 @@
         <module>spring-abstract-test</module>
         <module>spring-annotion-test</module>
         <module>spring-mvc-test</module>
+        <module>spring-redis-template-test</module>
     </modules>
 
     <properties>

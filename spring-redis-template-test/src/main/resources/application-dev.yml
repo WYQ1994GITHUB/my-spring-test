@@ -1,0 +1,9 @@
+server:
+  port: 8080
+spring:
+  #redis默认配置
+  redis:
+    host: xxxxxxx
+    database: 10
+    password: xxxx
+    port: 6379
