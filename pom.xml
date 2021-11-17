@@ -17,6 +17,7 @@
         <module>spring-annotion-test</module>
         <module>spring-mvc-test</module>
         <module>spring-redis-template-test</module>
+        <module>aliyun-nlp-test</module>
     </modules>
 
     <properties>
