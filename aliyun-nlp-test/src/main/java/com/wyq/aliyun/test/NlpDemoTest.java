@@ -9,15 +9,26 @@ import com.aliyuncs.alinlp.model.v20200629.GetTcChEcomRequest;
 import com.aliyuncs.alinlp.model.v20200629.GetTcChEcomResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
+import com.wyq.aliyun.util.ExcelWriteUtils;
 import lombok.Data;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author xxx
@@ -34,6 +45,76 @@ public class NlpDemoTest {
                 "");
 
         client = new DefaultAcsClient(defaultProfile);
+    }
+
+    @Test
+    public void excelTest() throws Exception {
+        String filePath = "/Users/Downloads/商机对话.xlsx";
+        File file = new File(filePath);
+        XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(file));
+        XSSFSheet sheet = wb.getSheetAt(0);
+        Set<String> result = new HashSet<>();
+        for (Row row : sheet) {
+            result.add(row.getCell(0).getStringCellValue());
+        }
+        System.out.println(result.size());
+
+        String exportPath = "/Users/Downloads/result.xlsx";
+        List<String> rowTitles = Lists.newArrayList("文本", "过滤文本", "实体识别", "智能分类");
+
+        List<BatchData> list = Lists.newArrayList();
+
+        int count = 0;
+        for (String s : result) {
+            count++;
+            BatchData batchData = batchTest(s);
+            list.add(batchData);
+
+            if (count % 10 == 0) {
+                System.out.println("已识别：" + count + "条");
+            }
+        }
+        List<List<String>> data = Lists.newArrayList();
+        for (BatchData batchData : list) {
+            List<String> row = Lists.newArrayList();
+            row.add(batchData.getText());
+            row.add(batchData.getDealText());
+            row.add(batchData.getNerResult());
+            row.add(batchData.getTcResult());
+            data.add(row);
+        }
+
+        ExcelWriteUtils.writeExcel(exportPath, rowTitles, data);
+    }
+
+    private BatchData batchTest(String text) {
+        BatchData batchData = new BatchData();
+        batchData.setText(text);
+
+
+//        String p = "@(.+?)\\s";
+        String p = "@(.+?)\\ |@(.+?)(\\s|$)";
+        Pattern pattern = Pattern.compile(p);
+        Matcher matcher = pattern.matcher(text);
+
+        String dealText = matcher.replaceAll("");
+        batchData.setDealText(dealText);
+
+
+        GetNerChEcomResponse nerResponse = sendNerRequest(dealText);
+        if (null != nerResponse && !org.springframework.util.StringUtils.isEmpty(nerResponse.getData())) {
+            NerResult nerResult = JSON.parseObject(nerResponse.getData(), NerResult.class).buildRequestId(nerResponse.getRequestId());
+            batchData.setNerResult(JSON.toJSONString(nerResult.getResult()));
+        }
+
+        GetTcChEcomResponse tcResponse = sendTcRequest(dealText);
+        if (tcResponse == null || org.springframework.util.StringUtils.isEmpty(tcResponse.getData())) {
+            return batchData;
+        }
+        TcResult tcResult = JSON.parseObject(tcResponse.getData(), TcResult.class).buildRequestId(tcResponse.getRequestId());
+        batchData.setTcResult(tcResult.getResult().getLabelName());
+
+        return batchData;
     }
 
     @Test
@@ -76,6 +157,9 @@ public class NlpDemoTest {
     }
 
     private GetTcChEcomResponse sendTcRequest(String text) {
+        if (org.springframework.util.StringUtils.isEmpty(text)) {
+            return null;
+        }
         // 创建API请求并设置参数
         GetTcChEcomRequest request = new GetTcChEcomRequest();
         request.setServiceCode("alinlp");
@@ -109,12 +193,12 @@ public class NlpDemoTest {
         /**
          * 同义词
          */
-        private String synonym;
+//        private String synonym;
 
         /**
          * 权重
          */
-        private String weight;
+//        private String weight;
 
         /**
          * 类别
@@ -151,5 +235,36 @@ public class NlpDemoTest {
 
         private String labelName;
     }
+
+    @Data
+    static class BatchData implements Serializable {
+        private static final long serialVersionUID = 409473033961207246L;
+
+        private String text;
+
+        private String dealText;
+
+        private String nerResult;
+
+        private String tcResult;
+    }
+
+
+    public static void main(String args[]) {
+        String str = "@老爸评测 菠萝 有推荐的咖啡吗？";
+        String ss = "那个铁剂瓶装的有没有？@佳佳";
+        String p = "@(.+?)\\ |@(.+?)(\\s|$)";
+        Pattern pattern = Pattern.compile(p);
+        Matcher matcher = pattern.matcher(str);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+
+        String s = matcher.replaceAll("");
+        System.out.println(count);
+        System.out.println(s);
+    }
+
 
 }
