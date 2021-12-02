@@ -18,6 +18,7 @@
         <module>spring-mvc-test</module>
         <module>spring-redis-template-test</module>
         <module>aliyun-nlp-test</module>
+        <module>mock-bean-test</module>
     </modules>
 
     <properties>

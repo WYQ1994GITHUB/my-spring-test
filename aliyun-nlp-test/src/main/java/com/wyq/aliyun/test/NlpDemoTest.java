@@ -3,10 +3,7 @@ package com.wyq.aliyun.test;
 import com.alibaba.fastjson.JSON;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
-import com.aliyuncs.alinlp.model.v20200629.GetNerChEcomRequest;
-import com.aliyuncs.alinlp.model.v20200629.GetNerChEcomResponse;
-import com.aliyuncs.alinlp.model.v20200629.GetTcChEcomRequest;
-import com.aliyuncs.alinlp.model.v20200629.GetTcChEcomResponse;
+import com.aliyuncs.alinlp.model.v20200629.*;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.wyq.aliyun.util.ExcelWriteUtils;
@@ -23,10 +20,9 @@ import org.springframework.util.CollectionUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +31,8 @@ import java.util.regex.Pattern;
  */
 public class NlpDemoTest {
     private IAcsClient client;
+
+    ExecutorService pool = Executors.newFixedThreadPool(1);
 
     @Before
     public void initClinet() {
@@ -49,7 +47,7 @@ public class NlpDemoTest {
 
     @Test
     public void excelTest() throws Exception {
-        String filePath = "/Users/Downloads/商机对话.xlsx";
+        String filePath = "/Users/yongqiwang/Downloads/商机对话.xlsx";
         File file = new File(filePath);
         XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(file));
         XSSFSheet sheet = wb.getSheetAt(0);
@@ -57,23 +55,34 @@ public class NlpDemoTest {
         for (Row row : sheet) {
             result.add(row.getCell(0).getStringCellValue());
         }
-        System.out.println(result.size());
 
-        String exportPath = "/Users/Downloads/result.xlsx";
+        String exportPath = "/Users/yongqiwang/Downloads/result.xlsx";
         List<String> rowTitles = Lists.newArrayList("文本", "过滤文本", "实体识别", "智能分类");
 
         List<BatchData> list = Lists.newArrayList();
 
         int count = 0;
+        List<Integer> times = Lists.newArrayList();
         for (String s : result) {
             count++;
-            BatchData batchData = batchTest(s);
+//            pool.execute(() -> {
+//                BatchData batchData = batchTest(s);
+//                list.add(batchData);
+//            });
+            BatchData batchData = batchTest(s, times);
             list.add(batchData);
 
             if (count % 10 == 0) {
                 System.out.println("已识别：" + count + "条");
             }
         }
+
+        System.out.println("max: " + times.stream().max(Comparator.naturalOrder()).get());
+        System.out.println("avg:" + times.stream().mapToInt(Integer::intValue).average().orElse(0D));
+
+//        while (count != list.size()) {
+//            Thread.sleep(2000);
+//        }
         List<List<String>> data = Lists.newArrayList();
         for (BatchData batchData : list) {
             List<String> row = Lists.newArrayList();
@@ -87,21 +96,24 @@ public class NlpDemoTest {
         ExcelWriteUtils.writeExcel(exportPath, rowTitles, data);
     }
 
-    private BatchData batchTest(String text) {
+    private BatchData batchTest(String text, List<Integer> times) {
         BatchData batchData = new BatchData();
         batchData.setText(text);
 
 
 //        String p = "@(.+?)\\s";
-        String p = "@(.+?)\\ |@(.+?)(\\s|$)";
+        String p = "@(.+?) |@(.+?)(\\s|$)";
         Pattern pattern = Pattern.compile(p);
         Matcher matcher = pattern.matcher(text);
 
         String dealText = matcher.replaceAll("");
         batchData.setDealText(dealText);
 
-
-        GetNerChEcomResponse nerResponse = sendNerRequest(dealText);
+//        GetNerChEcomResponse nerResponse = sendNerRequest(dealText);
+        long start = System.currentTimeMillis();
+        GetNerCustomizedChEcomResponse nerResponse = sendNerCusRequest(dealText);
+        Integer cost = Integer.parseInt(Long.toString((System.currentTimeMillis() - start)));
+        times.add(cost);
         if (null != nerResponse && !org.springframework.util.StringUtils.isEmpty(nerResponse.getData())) {
             NerResult nerResult = JSON.parseObject(nerResponse.getData(), NerResult.class).buildRequestId(nerResponse.getRequestId());
             batchData.setNerResult(JSON.toJSONString(nerResult.getResult()));
@@ -140,6 +152,19 @@ public class NlpDemoTest {
         }
         TcResult tcResult = JSON.parseObject(tcResponse.getData(), TcResult.class).buildRequestId(tcResponse.getRequestId());
         System.out.println(tcResult.getResult().getLabelName());
+    }
+
+    private GetNerCustomizedChEcomResponse sendNerCusRequest(String text) {
+        GetNerCustomizedChEcomRequest request = new GetNerCustomizedChEcomRequest();
+        request.setText(text);
+        request.setServiceCode("alinlp");
+        request.setLexerId("ECOM");
+        try {
+            return client.getAcsResponse(request);
+        } catch (ClientException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private GetNerChEcomResponse sendNerRequest(String text) {
@@ -251,9 +276,9 @@ public class NlpDemoTest {
 
 
     public static void main(String args[]) {
-        String str = "@老爸评测 菠萝 有推荐的咖啡吗？";
-        String ss = "那个铁剂瓶装的有没有？@佳佳";
-        String p = "@(.+?)\\ |@(.+?)(\\s|$)";
+//        String str = "@老爸评测 菠萝 有推荐的咖啡吗？";
+        String str = "那个铁剂瓶装的@你好啊 有没有？@佳佳";
+        String p = "@(.+?) |@(.+?)(\\s|$)";
         Pattern pattern = Pattern.compile(p);
         Matcher matcher = pattern.matcher(str);
         int count = 0;
@@ -262,9 +287,6 @@ public class NlpDemoTest {
         }
 
         String s = matcher.replaceAll("");
-        System.out.println(count);
         System.out.println(s);
     }
-
-
 }
